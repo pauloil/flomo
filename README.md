@@ -19,6 +19,8 @@
 pip install -U flomo
 ```
 
+### Python 封装
+
 ```python
 from flomo import Flomo, Parser
 authorization = "Bearer xxxxxxxxxxx"
@@ -31,9 +33,24 @@ print(memo.url)  # memo 链接
 print(memo.tags)
 ```
 
+或参考 `main_simple.py` (by [MarkShawn2020](https://github.com/MarkShawn2020))
+
 `authorization` 是用户 flomo 登录后获取的 token，可在浏览器的开发者工具中查看。
 
-如有疑问，欢迎 issue。
+### CLI 命令行
+
+```shell
+# 配置token
+flomo config --token 'your_token'
+
+# 列出前5条备忘录，表格格式
+flomo list -l 5 -f table
+
+# 搜索包含关键词的备忘录
+flomo search "知识管理" -f markdown
+```
+
+credit to [MarkShawn2020](https://github.com/MarkShawn2020)
 
 ## Local Install 本地安装
 
