@@ -54,7 +54,7 @@ setuptools.setup(
     name="flomo",
     version=get_version(),
     author="Benature Wang",
-    author_email="wbenature@163.com",
+    author_email="benature246@gmail.com",
     description="Flomo API (third party)",
     long_description=long_description,
     long_description_content_type="text/markdown",

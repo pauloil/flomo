@@ -6,6 +6,7 @@ prepare:
 clean:
 	rm -rf ./dist
 	rm -rf ./build
+
 uninstall:
 	pip uninstall flomo -y
 
