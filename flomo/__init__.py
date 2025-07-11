@@ -1,4 +1,4 @@
-__version__ = '1.0.1-alpha'
+__version__ = '1.0.0-alpha'
 
 import platform
 import requests
