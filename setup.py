@@ -4,6 +4,8 @@ import ast
 from pathlib import Path
 from typing import List
 
+FILE_DIR = Path(__file__).parent.resolve()
+
 REQUIREMENTS_SPEC = 'requirements.txt'
 PACKAGE_ENTRY = 'flomo'
 VERSION_FLAG = '__version__'
@@ -13,7 +15,7 @@ with open("README.md", "r") as fh:
 
 
 def read_requirements() -> List[str]:
-    p = Path(__file__).parent / REQUIREMENTS_SPEC
+    p = FILE_DIR / REQUIREMENTS_SPEC
     with open(str(p), 'r', encoding='utf-8') as f:
         rows = f.readlines()
 
@@ -32,7 +34,7 @@ def read_requirements() -> List[str]:
 
 
 def get_version() -> str:
-    p = Path(__file__).parent / PACKAGE_ENTRY / '__init__.py'
+    p = FILE_DIR / PACKAGE_ENTRY / '__init__.py'
 
     version_row = None
     with open(str(p), 'r', encoding='utf-8') as f:
