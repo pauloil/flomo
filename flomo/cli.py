@@ -200,6 +200,42 @@ class FlomoCLI:
         else:
             print("请使用 --token 设置token 或 --show 查看当前配置")
     
+    def cmd_create(self, args) -> None:
+        """创建备忘录"""
+        flomo = self._get_flomo_client()
+        try:
+            memo = flomo.create(args.content)
+            if not args.quiet:
+                print(f"已创建: {memo['slug']}")
+            if args.format == 'json':
+                print(json.dumps(memo, ensure_ascii=False, indent=2 if not args.compact else None))
+        except Exception as e:
+            print(f"错误: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    def cmd_update(self, args) -> None:
+        """更新备忘录"""
+        flomo = self._get_flomo_client()
+        try:
+            memo = flomo.update(args.slug, args.content)
+            if not args.quiet:
+                print(f"已修改: {args.slug}")
+            if args.format == 'json':
+                print(json.dumps(memo, ensure_ascii=False, indent=2 if not args.compact else None))
+        except Exception as e:
+            print(f"错误: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    def cmd_delete(self, args) -> None:
+        """删除备忘录"""
+        flomo = self._get_flomo_client()
+        try:
+            message = flomo.delete(args.slug)
+            print(message)
+        except Exception as e:
+            print(f"错误: {e}", file=sys.stderr)
+            sys.exit(1)
+
     def cmd_search(self, args) -> None:
         """搜索备忘录"""
         flomo = self._get_flomo_client()
@@ -268,6 +304,25 @@ class FlomoCLI:
         search_parser.add_argument('-c', '--compact', action='store_true', help='紧凑的JSON输出')
         search_parser.add_argument('-q', '--quiet', action='store_true', help='安静模式，不显示进度信息')
         
+        # create 命令
+        create_parser = subparsers.add_parser('create', help='创建备忘录')
+        create_parser.add_argument('content', help='备忘录内容（支持纯文本或HTML）')
+        create_parser.add_argument('-f', '--format', choices=['json', 'none'], default='none', help='输出格式')
+        create_parser.add_argument('-c', '--compact', action='store_true', help='紧凑的JSON输出')
+        create_parser.add_argument('-q', '--quiet', action='store_true', help='安静模式')
+
+        # update 命令
+        update_parser = subparsers.add_parser('update', help='更新备忘录')
+        update_parser.add_argument('slug', help='备忘录的slug')
+        update_parser.add_argument('content', help='新的备忘录内容')
+        update_parser.add_argument('-f', '--format', choices=['json', 'none'], default='none', help='输出格式')
+        update_parser.add_argument('-c', '--compact', action='store_true', help='紧凑的JSON输出')
+        update_parser.add_argument('-q', '--quiet', action='store_true', help='安静模式')
+
+        # delete 命令
+        delete_parser = subparsers.add_parser('delete', help='删除备忘录')
+        delete_parser.add_argument('slug', help='备忘录的slug')
+
         # config 命令
         config_parser = subparsers.add_parser('config', help='配置管理')
         config_parser.add_argument('--token', help='设置认证token')
@@ -285,6 +340,12 @@ class FlomoCLI:
             self.cmd_list(args)
         elif args.command == 'search':
             self.cmd_search(args)
+        elif args.command == 'create':
+            self.cmd_create(args)
+        elif args.command == 'update':
+            self.cmd_update(args)
+        elif args.command == 'delete':
+            self.cmd_delete(args)
         elif args.command == 'config':
             self.cmd_config(args)
 

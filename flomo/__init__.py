@@ -16,9 +16,22 @@ class Flomo:
     def __init__(self, authorization):
         self.token = authorization
         self.limit = 200  # memo数量上限
-        self.url_updated = "https://flomoapp.com/api/v1/memo/updated/"
+        self.base_url = "https://flomoapp.com/api/v1/memo"
+        self.url_updated = f"{self.base_url}/updated/"
         self.salt = "dbbc3dd73364b4084c3a69346e0ce2b2"
         self.success_code = 0
+
+    def _sign(self, params: dict) -> dict:
+        """Add timestamp and MD5 signature to a params dict."""
+        params.setdefault("tz", "8:0")
+        params.setdefault("timestamp", str(int(datetime.now().timestamp())))
+        params.setdefault("api_key", "flomo_web")
+        params.setdefault("app_version", "5.25.64")
+        params.setdefault("platform", "mac")
+        params.setdefault("webp", "1")
+        param_str = "&".join(f"{k}={v}" for k, v in sorted(params.items()))
+        params["sign"] = hashlib.md5((param_str + self.salt).encode("utf-8")).hexdigest()
+        return params
 
     def _get_params(self, params: dict):
         params_sorted = {
@@ -46,6 +59,14 @@ class Flomo:
 
         return params_sorted
 
+    def _headers(self) -> dict:
+        return {"authorization": self.token}
+
+    def _check(self, data: dict) -> dict:
+        if data.get("code") != self.success_code:
+            raise Exception(f"flomo request error: {data}")
+        return data
+
     def request(self, params: Optional[dict] = None):
         headers = {"authorization": self.token}
         resp = requests.get(self.url_updated,
@@ -69,6 +90,37 @@ class Flomo:
             return memos + self.get_all_memos(_params)
         else:
             return memos
+
+    def create(self, content: str) -> Dict:
+        """Create a new memo. Plain text is auto-wrapped in <p> tags."""
+        if not content.strip().startswith("<"):
+            content = f"<p>{content}</p>"
+        resp = requests.put(
+            f"{self.base_url}/",
+            params=self._sign({"content": content}),
+            headers=self._headers(),
+        )
+        return self._check(resp.json())["data"]
+
+    def update(self, slug: str, content: str) -> Dict:
+        """Update an existing memo by slug."""
+        if not content.strip().startswith("<"):
+            content = f"<p>{content}</p>"
+        resp = requests.put(
+            f"{self.base_url}/{slug}/",
+            params=self._sign({"content": content}),
+            headers=self._headers(),
+        )
+        return self._check(resp.json())["data"]
+
+    def delete(self, slug: str) -> str:
+        """Delete a memo by slug. Returns the API message."""
+        resp = requests.delete(
+            f"{self.base_url}/{slug}/",
+            params=self._sign({}),
+            headers=self._headers(),
+        )
+        return self._check(resp.json())["message"]
 
 
 class Parser:
