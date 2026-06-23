@@ -53,19 +53,20 @@ def get_version() -> str:
 
 
 setuptools.setup(
-    name="flomo",
+    name="flo-cli",
     version=get_version(),
-    author="Benature Wang",
-    author_email="benature246@gmail.com",
-    description="Flomo API (third party)",
+    author="pauloil",
+    author_email="pauloil29@yahoo.co.jp",
+    description="Flomo unofficial API with full CRUD support",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Benature/flomo",
+    url="https://github.com/pauloil/flomo",
     packages=setuptools.find_packages(),
     install_requires=read_requirements(),
     entry_points={
         'console_scripts': [
-            'flomo=flomo.cli:main',
+            'flo=flomo.cli:main',
+            'flo-mcp=flomo.mcp_server:main',
         ],
     },
     classifiers=(
